@@ -1,0 +1,65 @@
+https://books.agiliq.com/projects/django-multi-tenant/en/latest
+
+python manage.py makemigrations
+Now specifiy database
+python manage.py migrate --database=thor
+python manage.py createsuperuser --database=thor
+
+python tenant_context_manage.py thor createsuperuser --database=thor
+
+<VirtualHost *:80>
+        ServerName potter.polls.local
+        ServerAlias www.potter.polls.local
+        DocumentRoot /home/sami/django/isolated-db
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+
+        Alias /static /home/sami/django/isolated-db/static
+        <Directory /home/sami/django/isolated-db/static>
+                Require all granted
+        </Directory>
+
+        Alias /static /home/sami/django/isolated-db/media
+        <Directory /home/sami/django/isolated-db/media>
+                Require all granted
+        </Directory>
+
+        <Directory /home/sami/django/isolated-db/pollsapi>
+                <Files wsgi.py>
+                        Require all granted
+                </Files>
+        </Directory>
+
+        WSGIDaemonProcess potter_isloated_db python-path=/home/sami/django/isolated-db python-home=/home/sami/vens/isolated-db
+        WSGIProcessGroup potter_isloated_db
+        WSGIScriptAlias / /home/sami/django/isolated-db/pollsapi/wsgi.py
+
+</VirtualHost>
+
+<VirtualHost *:80>
+        ServerName thor.polls.local
+        ServerAlias www.thor.polls.local
+        DocumentRoot /home/sami/django/isolated-db
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+
+        Alias /static /home/sami/django/isolated-db/static
+        <Directory /home/sami/django/isolated-db/static>
+                Require all granted
+        </Directory>
+
+        Alias /static /home/sami/django/isolated-db/media
+        <Directory /home/sami/django/isolated-db/media>
+                Require all granted
+        </Directory>
+
+        <Directory /home/sami/django/isolated-db/pollsapi>
+                <Files wsgi.py>
+                        Require all granted
+                </Files>
+        </Directory>
+
+        WSGIDaemonProcess thor_isolated_db python-path=/home/sami/django/isolated-db python-home=/home/sami/vens/isolated-db
+        WSGIProcessGroup thor_isolated_db
+        WSGIScriptAlias / /home/sami/django/isolated-db/pollsapi/wsgi.py
+</VirtualHost>

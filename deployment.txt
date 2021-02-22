@@ -1,0 +1,207 @@
+Guide For wsgi:
+https://modwsgi.readthedocs.io/en/master/user-guides/quick-installation-guide.html
+
+Install Apache2-dev:
+sudo apt-get install apache2-dev
+
+Download:
+https://github.com/GrahamDumpleton/mod_wsgi/releases
+
+OR
+sudo apt-get install libapache2-mod-wsgi
+
+Extract:
+tar xvfz mod_wsgi-X.Y.tar.gz
+
+Configure:
+./configure --with-python=/usr/bin/python3
+
+Make:
+make
+sudo make install
+
+Include in apache2:
+Add following line at the end of /etc/apache2/apache2.conf
+LoadModule wsgi_module /usr/lib/apache2/modules/mod_wsgi.so
+
+Restart:
+sudo apachectl restart
+sudo apachectl stop
+sudo apachectl start
+
+
+sudo apt-get install postgresql postgresql-contrib libpq-dev
+sudo apt install curl
+curl https://www.pgadmin.org/static/packages_pgadmin_org.pub | sudo apt-key add
+sudo sh -c 'echo "deb https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/$(lsb_release -cs) pgadmin4 main" > /etc/apt/sources.list.d/pgadmin4.list && apt update'
+sudo apt install pgadmin4-desktop
+
+sudo -u postgres psql
+
+CREATE USER jang WITH PASSWORD '';
+ALTER USER jang WITH SUPERUSER;
+\password jang user_name;
+create database dbname
+GRANT ALL PRIVILEGES ON DATABASE dbname TO username;
+
+change
+local   all             all                                     peer
+to
+local   all             all                                     md5
+sudo systemctl restart postgresql
+
+
+=======Deploy===========
+add
+STATIC_ROOT = os.path.join(BASE_DIR, "static/")
+at the end of settings file as its required to deploy
+
+add middleware whitenose to deploy static alongwith degub
+'whitenoise.middleware.WhiteNoiseMiddleware',
+
+
+allow hosts in setting file like by adding
+ALLOWED_HOSTS = ['localhost', '127.0.01', 'cable-billing.herokuapp.com']
+
+================heroku starts============
+https://devcenter.heroku.com/articles/getting-started-with-python
+
+https://dashboard.heroku.com/
+go to heroku dashboard (signup first, if not already)
+create new app
+connect to git repo
+
+Add resource postgresql
+then click the added resource and got settings/view credentials
+copy credentials of db to project setting file
+
+add runtime.txt to your project root directory with default language of project below is example
+python-3.8.5
+
+For django-heroku you will need
+sudo apt-get install libpq5=12.5-0ubuntu0.20.04.1
+sudo apt install libpq-dev
+
+add requirements.txt with all required module like
+Django==3.1.5
+whitenoise==5.2.0
+psycopg2-binary==2.8.6
+django-heroku==0.3.1
+gunicorn==20.0.4
+python-dateutil==2.8.1
+
+
+----------- after heroku cli installed  run command -----------
+
+heroku run python manage.py makemigrations --app app_name
+heroku run python manage.py migrate --app app_name
+heroku run bash --app cable-billing
+
+-----------------If stuck with command line------------
+heroku ps --app cable-billing
+heroku ps:stop run.2787 --app cable-billing
+-----------------------------------------------
+
+For command line run
+heroku run python manage.py reset --app news92
+---------------------
+For gunicorn (efficient)
+------------
+
+you might need
+1.
+add Procfile with content (projectname is the name of your main module containing wsgi.py)
+web: gunicorn projectname.wsgi --log-file -
+2.
+to install heroku cli as well
+sudo snap install --classic heroku
+and then in terminal
+heroku ps:scale web=1
+
+push your update to git
+click deploy branch at heroku
+
+add
+STATIC_ROOT = os.path.join(BASE_DIR, "static/")
+at the end of settings file as its required to deploy
+
+
+================heroku ends============
+
+
+Guide to deploy python site at apache
+https://studygyaan.com/django/how-to-setup-django-applications-with-apache-and-mod-wsgi-on-ubuntu
+
+sudo apt-get update
+sudo apt-get install python3-pip apache2 libapache2-mod-wsgi-py3
+
+sudo apt-get install python3-venv
+
+python3 -m venv /path/to/virtual_env_for_my_site
+source /path/to/virtual_env_for_my_site/bin/activate
+
+pip install -r requirements.txt
+
+sudo nano /etc/apache2/sites-available/my_site.conf
+
+If you ever face python encoding error then please just make sure
+you are using compatible version of django and python plus
+your following paths are accurate like following
+
+<VirtualHost *:80>
+        ServerName polls.local
+        ServerAlias www.polls.local
+        DocumentRoot /home/sami/django/isolated-db
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+
+        Alias /static /home/sami/django/isolated-db/static
+        <Directory /home/sami/django/isolated-db/static>
+                Require all granted
+        </Directory>
+
+        Alias /static /home/sami/django/isolated-db/media
+        <Directory /home/sami/django/isolated-db/media>
+                Require all granted
+        </Directory>
+
+        <Directory /home/sami/django/isolated-db/pollsapi>
+                <Files wsgi.py>
+                        Require all granted
+                </Files>
+        </Directory>
+
+        WSGIDaemonProcess videotest python-path=/home/sami/django/isolated-db python-home=/home/sami/vens/isolated-db
+        WSGIProcessGroup videotest
+        WSGIScriptAlias / /home/sami/django/isolated-db/pollsapi/wsgi.py
+</VirtualHost>
+
+
+cd /etc/apache2/sites-available
+sudo a2ensite my_site.conf
+
+Permissions
+sudo chown :www-data /path/to/python-site
+
+#do following to add ur domain only, if cloud-flare is not attached
+sudo nano /etc/hosts
+127.0.0.1 my_site.com
+
+#Only For Sqlite
+sudo chmod 664 /path/to/python-site/db.sqlite3
+sudo chown :www-data /path/to/python-site/db.sqlite3
+
+#only for django => In Django Project add following to settings.py
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'my_site.com']
+
+
+Config Test:
+sudo apache2ctl configtest
+
+sudo service apache2 restart
+
+./manage.py shell
+>>> from django.contrib.auth.hashers import make_password
+>>> make_password('my password')
+store it in fixtures
+
