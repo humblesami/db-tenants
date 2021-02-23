@@ -1,7 +1,8 @@
 import threading
 from uuid import uuid4
 
-from django.db import connections
+from django.db import connection
+
 from .models import Tenant
 from .utils import tenant_db_from_request
 
@@ -13,8 +14,24 @@ class TenantMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        host_name = tenant_db_from_request(request)
-        setattr(THREAD_LOCAL, "DB", host_name)
+        current_db = connection.settings_dict['NAME']
+        host_name = request.get_host().split(":")[0].lower()
+        arr = host_name.split('.')
+        if arr:
+            if len(arr):
+                host_name = arr[0]
+        if current_db != 'default':
+            setattr(THREAD_LOCAL, "DB", 'default')
+        hosts = Tenant.objects.filter(name=host_name)
+        try:
+            if hosts:
+                host_name = hosts[0].name
+                setattr(THREAD_LOCAL, "DB", host_name)
+            else:
+                if current_db != 'default':
+                    setattr(THREAD_LOCAL, "DB", 'default')
+        except:
+            pass
         response = self.get_response(request)
         return response
 

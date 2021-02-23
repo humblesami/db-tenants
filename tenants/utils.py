@@ -9,10 +9,15 @@ def hostname_from_request(request):
 
 def tenant_db_from_request(request):
     hostname = hostname_from_request(request)
-    map = get_tenants_map()
-    res = map[hostname]
+    mapping = get_tenants_map()
+    res = mapping[hostname]
     return res
 
 
 def get_tenants_map():
-    return {"thor.polls.local": "thor", "potter.polls.local": "potter"}
+    return {
+        "thor.polls.local": "thor",
+        "potter.polls.local": "potter",
+        "localhost": "default",
+        "127.0.0.1": "default"
+    }
