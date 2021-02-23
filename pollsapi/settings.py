@@ -129,7 +129,9 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 INSTALLED_APPS = ['my_admin'] + INSTALLED_APPS
+INSTALLED_APPS = INSTALLED_APPS + ['tenant_users']
 
 if DEBUG:
     AUTH_PASSWORD_VALIDATORS = []
 STATIC_ROOT = os.path.join(BASE_DIR, "static/")
+

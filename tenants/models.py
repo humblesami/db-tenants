@@ -1,3 +1,6 @@
+# from django.contrib.auth.models import User
+from django.contrib.auth.models import User
+
 from django.db import models
 from django.db import connection
 
@@ -19,3 +22,10 @@ class Tenant(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class GlobalUser(User):
+    tenants = models.ManyToManyField(Tenant, related_name='users')
+
+    def save(self, *args, **kwargs):
+        super().save(args, kwargs)
