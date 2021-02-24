@@ -1,10 +1,9 @@
 import threading
 from uuid import uuid4
 
+from django.conf import settings
 from django.db import connection
-
 from .models import Tenant
-from .utils import tenant_db_from_request
 
 THREAD_LOCAL = threading.local()
 
@@ -20,16 +19,17 @@ class TenantMiddleware:
         if arr:
             if len(arr):
                 host_name = arr[0]
-        if current_db != 'default':
-            setattr(THREAD_LOCAL, "DB", 'default')
+        shared_db = settings.DATABASES['default']['NAME']
+        if current_db != shared_db:
+            setattr(THREAD_LOCAL, "DB", shared_db)
         hosts = Tenant.objects.filter(name=host_name)
         try:
             if hosts:
                 host_name = hosts[0].name
                 setattr(THREAD_LOCAL, "DB", host_name)
             else:
-                if current_db != 'default':
-                    setattr(THREAD_LOCAL, "DB", 'default')
+                if current_db != shared_db:
+                    setattr(THREAD_LOCAL, "DB", shared_db)
         except:
             pass
         response = self.get_response(request)

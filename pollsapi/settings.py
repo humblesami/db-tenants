@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+from tenants.models import Tenant
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -43,10 +45,6 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "rest_framework",
-    "rest_framework.authtoken",
-    "polls",
-    "tenants",
 ]
 
 MIDDLEWARE = [
@@ -85,15 +83,13 @@ WSGI_APPLICATION = "pollsapi.wsgi.application"
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
 DATABASES = {
-    "default": {"NAME": "default"},
-    "thor": {"NAME": "thor"},
-    "potter": {"NAME": "potter"},
+    "default": {
+        "NAME": "billing",
+        "ENGINE": "django.db.backends.postgresql",
+        "USER": "odoo",
+        "PASSWORD": "123"
+    },
 }
-
-for key in DATABASES:
-    DATABASES[key]['ENGINE'] = 'django.db.backends.postgresql'
-    DATABASES[key]['USER'] = 'odoo'
-    DATABASES[key]['PASSWORD'] = '123'
 
 DATABASE_ROUTERS = ["tenants.router.TenantRouter"]
 
@@ -128,10 +124,32 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATIC_URL = "/static/"
-INSTALLED_APPS = ['my_admin'] + INSTALLED_APPS
-INSTALLED_APPS = INSTALLED_APPS + ['tenant_users']
+default_apps = INSTALLED_APPS
+default_apps = ['dj_admin'] + default_apps
+default_apps += ["rest_framework", "rest_framework.authtoken"]
+default_apps += ['dj_utils', 'customers', 'tenants']
+default_apps += ["polls"]
+default_apps += ['tenant_users', 'subscriptions']
+INSTALLED_APPS = default_apps
 
 if DEBUG:
     AUTH_PASSWORD_VALIDATORS = []
 STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 
+clients_count = 5
+
+
+# def db_for_new_clients():
+#     try:
+#         clients = Tenant.objects.filter(active=True).values_list('name')
+#         if len(clients):
+#             clients = list(clients)
+#             for cl in clients:
+#                 new_dict = DATABASES['default'].copy()
+#                 new_dict['NAME'] = cl['name']
+#                 DATABASES[cl['name']] = new_dict
+#     except:
+#         pass
+#
+#
+# db_for_new_clients()
