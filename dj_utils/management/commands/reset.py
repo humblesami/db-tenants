@@ -1,6 +1,5 @@
 import os
 import sys
-import importlib
 import traceback
 from pathlib import Path
 
@@ -11,10 +10,16 @@ from django.conf import settings
 from django.core.management import call_command
 from django.core.management.base import BaseCommand
 
+from tenants.middlewares import THREAD_LOCAL
+
 
 class Command(BaseCommand):
     help = 'setting up db i.e. create db or drop db for dev purpose'
     all_dbs = []
+
+    def get_dj_utils_path(self):
+        module_path = settings.BASE_DIR + '/dj_utils'
+        return module_path
 
     def drop_create_db(self, db_config, root_dir):
         db_engine = db_config['ENGINE']
@@ -66,29 +71,24 @@ class Command(BaseCommand):
         call_command(cmd_str)
 
     def migrate_all(self):
-        for db_key in self.all_dbs:
-            print("migrating " + db_key)
+        for db_name in self.all_dbs:
+            print("migrating " + db_name)
             cmd_str = 'migrate'
-            call_command(cmd_str, database=db_key)
-            # Pinter@rt5
-            cmd_str = 'loaddata ' + self.module_path + '/fixtures/data.json'
             call_command(cmd_str)
-            print("done with " + db_key)
+            # Pinter@rt5
+            fixture_path = self.get_dj_utils_path()
+            fixture_path += '/fixtures/data.json'
+            call_command('loaddata', fixture_path)
+            print("done with " + db_name)
 
-    def set_module_path(self):
-        module_path = os.path.dirname(__file__)
-        module_path = os.path.dirname(module_path)
-        module_path = os.path.dirname(module_path)
-        self.module_path = module_path
 
     def handle(self, *args, **kwargs):
         try:
             root_dir = settings.BASE_DIR
-            self.set_module_path()
-
             for db_key in settings.DATABASES:
-                self.all_dbs.append(db_key)
-                self.drop_create_db(settings.DATABASES[db_key], root_dir)
+                db_name = settings.DATABASES[db_key]['NAME']
+                self.all_dbs.append(db_name)
+                self.drop_create_db(db_name, root_dir)
 
             self.re_init_migrations()
             self.migrate_all()

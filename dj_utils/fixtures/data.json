@@ -1,0 +1,32 @@
+[
+    {
+        "model": "auth.Group",
+        "pk": 1,
+        "fields": {
+            "name": "Admin"
+        }
+    },
+    {
+        "model": "auth.Group",
+        "pk": 2,
+        "fields": {
+            "name": "Staff"
+        }
+    },
+    {
+        "pk": 1,
+        "model": "auth.user",
+        "fields": {
+            "username": "sa",
+            "first_name": "Sami",
+            "last_name": "Akram",
+            "is_active": true,
+            "is_superuser": true,
+            "is_staff": true,
+            "groups": [1],
+            "user_permissions": [],
+            "email": "sami.akram@92newshd.tv",
+            "password": "pbkdf2_sha256$216000$Po180SS9N9Xj$rYEJR5lQTf3tzYk61F04FKjETBa15235tD1Tgwu4DNo="
+        }
+    }
+]

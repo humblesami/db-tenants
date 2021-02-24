@@ -1,10 +1,9 @@
-import os
 import sys
 import traceback
 from django.conf import settings
-from dj_utils.management.commands.reset import Command as ResetCommand
 
 from tenants.models import Tenant
+from dj_utils.management.commands.reset import Command as ResetCommand
 
 
 class Command(ResetCommand):
@@ -12,11 +11,8 @@ class Command(ResetCommand):
     def handle(self, *args, **kwargs):
         try:
             root_dir = settings.BASE_DIR
-            self.set_module_path()
-
             modes_dict = {'drop_create_db': 1, 'make': 2, 'migrate': 3}
-            selected_mode = 'migrate'
-            mode = modes_dict[selected_mode]
+            mode = 3
             default_config = settings.DATABASES['default']
             tenant_names = []
 
@@ -29,12 +25,12 @@ class Command(ResetCommand):
 
             if mode == 1:
                 self.drop_create_db(default_config, root_dir)
-            self.all_dbs.append('default')
+            self.all_dbs.append(default_config['NAME'])
 
             for tenant_dict in tenant_names:
                 new_config = default_config.copy()
                 new_config['NAME'] = tenant_dict['name']
-                if modes_dict[selected_mode] == 1:
+                if mode == 1:
                     self.drop_create_db(new_config, root_dir)
                 self.all_dbs.append(new_config['NAME'])
 

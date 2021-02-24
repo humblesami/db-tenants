@@ -13,7 +13,6 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-from tenants.models import Tenant
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -135,21 +134,3 @@ INSTALLED_APPS = default_apps
 if DEBUG:
     AUTH_PASSWORD_VALIDATORS = []
 STATIC_ROOT = os.path.join(BASE_DIR, "static/")
-
-clients_count = 5
-
-
-# def db_for_new_clients():
-#     try:
-#         clients = Tenant.objects.filter(active=True).values_list('name')
-#         if len(clients):
-#             clients = list(clients)
-#             for cl in clients:
-#                 new_dict = DATABASES['default'].copy()
-#                 new_dict['NAME'] = cl['name']
-#                 DATABASES[cl['name']] = new_dict
-#     except:
-#         pass
-#
-#
-# db_for_new_clients()
