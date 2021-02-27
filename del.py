@@ -1,10 +1,16 @@
 import os
 import glob
+import pathlib
+
+root_path = pathlib.Path(__file__).parent.absolute()
 
 
 def remove_migrations():
-    res = glob.glob('*/migrations/*', recursive=True)
+    migrations_paths = str(root_path)+'/**/migrations/*'
+    res = glob.glob(migrations_paths, recursive=True)
     for file_path in res:
+        if file_path.startswith(str(root_path)+'/django/'):
+            continue
         if file_path.endswith('__pycache__'):
             file_path = file_path+'/*'
             sub_res = glob.glob(file_path)
@@ -15,7 +21,7 @@ def remove_migrations():
 
 
 def remove_files_by_type(ext):
-    sub_res = glob.glob('*.'+ext, recursive=True)
+    sub_res = glob.glob(str(root_path)+'/**/*.'+ext, recursive=True)
     cnt = 0
     for file_path in sub_res:
         cnt += 1

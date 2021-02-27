@@ -24,19 +24,17 @@ class Command(ResetCommand):
                 tenant_names = []
                 pass
 
-            if mode == 1 or mode == 99:
-                self.drop_create_db(default_config, root_dir)
+            self.drop_create_db(default_config, root_dir)
             self.all_dbs.append(default_config['NAME'])
 
             for tenant_dict in tenant_names:
                 new_config = default_config.copy()
                 new_config['NAME'] = tenant_dict['name']
-                if mode == 1 or mode == 99:
-                    res = self.drop_create_db(new_config['NAME'], root_dir)
-                    if res:
-                        print(res)
-                        return
-                self.all_dbs.append(new_config['NAME'])
+                res = self.drop_create_db(new_config, root_dir)
+                if res:
+                    print(res)
+                    return
+                self.all_dbs.append(new_config)
 
             self.re_init_migrations()
             self.migrate_all()
