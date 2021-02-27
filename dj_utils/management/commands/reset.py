@@ -16,7 +16,6 @@ from tenants.middlewares import THREAD_LOCAL
 
 class Command(BaseCommand):
     help = 'setting up db i.e. create db or drop db for dev purpose'
-    all_dbs = []
 
     def get_dj_utils_path(self):
         module_path = settings.BASE_DIR + '/dj_utils'
@@ -56,22 +55,36 @@ class Command(BaseCommand):
         # stmt = 'REVOKE CONNECT ON DATABASE '+db_name+' FROM public'
         # db_cursor.execute(stmt)
         stmt = """
-        SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity"
+        SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity
         WHERE pg_stat_activity.datname='"""+db_name+"""'
         """
-        try:
-            close_dbs = stmt.format(db_name)
-            db_cursor.execute(close_dbs)
-            stmt = 'DROP DATABASE if exists ' + db_name
-            db_cursor.execute(close_dbs)
-        except:
-            return 'Execute following to stop connections\n\n'+close_dbs+'\n\n\n'
+        db_cursor.execute(stmt)
+        stmt = 'DROP DATABASE if exists ' + db_name
+        db_cursor.execute(stmt)
         stmt = 'CREATE DATABASE ' + db_name
         db_cursor.execute(stmt)
         db_cursor.close()
         db_host_connection.close()
 
         print("Database " + db_config['NAME'] + " created")
+
+    def exec_query_on_default(self, db_config, stmt, fetch=False):
+        db_host_connection = connect(
+            database=db_config['NAME'],
+            user=db_config['USER'],
+            password=db_config['PASSWORD'],
+        )
+        db_host_connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+        if type(db_host_connection) is str:
+            return db_host_connection
+        db_cursor = db_host_connection.cursor()
+        db_cursor.execute(stmt)
+        res = []
+        if fetch:
+            db_cursor.dictfetchall()
+        db_cursor.close()
+        db_host_connection.close()
+        return res
 
     def re_init_migrations(self):
         importlib.import_module('del')
@@ -88,11 +101,14 @@ class Command(BaseCommand):
                     error_message += " " + er
             raise
 
-    def migrate_all(self):
-        for db_name in self.all_dbs:
+    def migrate_all(self, tenant_names=None):
+        if not tenant_names:
+            db_conns = settings.DATABASES
+        for db_key in db_conns:
+            db_name = db_conns[db_key]['NAME']
             print("migrating " + db_name)
             cmd_str = 'migrate'
-            call_command(cmd_str)
+            call_command(cmd_str, db_key)
             # Pinter@rt5
             fixture_path = self.get_dj_utils_path()
             fixture_path += '/fixtures/data.json'
@@ -104,8 +120,6 @@ class Command(BaseCommand):
         try:
             root_dir = settings.BASE_DIR
             for db_key in settings.DATABASES:
-                db_name = settings.DATABASES[db_key]['NAME']
-                self.all_dbs.append(db_name)
                 res = self.drop_create_db(settings.DATABASES[db_key], root_dir)
                 if res:
                     print(res)

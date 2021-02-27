@@ -57,6 +57,12 @@ def now_str(format=''):
     return time_now_str
 
 
+def now_str_number():
+    dt = datetime.now()
+    time_now_str = change_datetime_format(dt, '%Y%m%d%H%M%S')
+    return time_now_str
+
+
 def get_user_name(user):
     name = False
     if user.first_name:
