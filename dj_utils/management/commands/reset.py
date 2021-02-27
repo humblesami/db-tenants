@@ -55,13 +55,17 @@ class Command(BaseCommand):
 
         # stmt = 'REVOKE CONNECT ON DATABASE '+db_name+' FROM public'
         # db_cursor.execute(stmt)
-        stmt = "SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity"
-        stmt += " WHERE pg_stat_activity.datname = '" + db_name + "'"
-        db_cursor.execute(stmt)
-
-        stmt = 'DROP DATABASE if exists ' + db_name
-        db_cursor.execute(stmt)
-
+        stmt = """
+        SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity"
+        WHERE pg_stat_activity.datname='"""+db_name+"""'
+        """
+        try:
+            close_dbs = stmt.format(db_name)
+            db_cursor.execute(close_dbs)
+            stmt = 'DROP DATABASE if exists ' + db_name
+            db_cursor.execute(close_dbs)
+        except:
+            return 'Execute following to stop connections\n\n'+close_dbs+'\n\n\n'
         stmt = 'CREATE DATABASE ' + db_name
         db_cursor.execute(stmt)
         db_cursor.close()

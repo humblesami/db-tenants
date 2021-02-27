@@ -26,21 +26,16 @@ class Command(ResetCommand):
 
             if mode == 1 or mode == 99:
                 self.drop_create_db(default_config, root_dir)
-
-            res = self.drop_create_db(default_config, root_dir)
-            if res:
-                print(res)
-                return
-
             self.all_dbs.append(default_config['NAME'])
 
             for tenant_dict in tenant_names:
                 new_config = default_config.copy()
                 new_config['NAME'] = tenant_dict['name']
-                res = self.drop_create_db(new_config, root_dir)
-                if res:
-                    print(res)
-                    return
+                if mode == 1 or mode == 99:
+                    res = self.drop_create_db(new_config['NAME'], root_dir)
+                    if res:
+                        print(res)
+                        return
                 self.all_dbs.append(new_config['NAME'])
 
             self.re_init_migrations()
