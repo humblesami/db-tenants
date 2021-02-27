@@ -1,3 +1,4 @@
+import importlib
 import os
 import sys
 import traceback
@@ -43,6 +44,8 @@ class Command(BaseCommand):
             password=db_config['PASSWORD'],
         )
         db_host_connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+        # db_name = settings.DATABASES['default']['NAME']
+        # setattr(THREAD_LOCAL, "DB", default_db)
 
         if type (db_host_connection) is str:
             return db_host_connection
@@ -53,11 +56,12 @@ class Command(BaseCommand):
         # stmt = 'REVOKE CONNECT ON DATABASE '+db_name+' FROM public'
         # db_cursor.execute(stmt)
         stmt = "SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity"
-        stmt += " WHERE pg_stat_activity.datname = '"+db_name+"'"
+        stmt += " WHERE pg_stat_activity.datname = '" + db_name + "'"
         db_cursor.execute(stmt)
 
         stmt = 'DROP DATABASE if exists ' + db_name
         db_cursor.execute(stmt)
+
         stmt = 'CREATE DATABASE ' + db_name
         db_cursor.execute(stmt)
         db_cursor.close()
@@ -66,9 +70,19 @@ class Command(BaseCommand):
         print("Database " + db_config['NAME'] + " created")
 
     def re_init_migrations(self):
+        importlib.import_module('del')
         cmd_str = 'makemigrations'
-        # cmd_str = 'python manage.py ' + cmd_str
-        call_command(cmd_str)
+        try:
+            call_command(cmd_str)
+        except:
+            eg = traceback.format_exception(*sys.exc_info())
+            error_message = ''
+            cnt = 0
+            for er in eg:
+                cnt += 1
+                if not 'lib/python' in er and not 'lib\site-packages' in er:
+                    error_message += " " + er
+            raise
 
     def migrate_all(self):
         for db_name in self.all_dbs:
@@ -88,8 +102,10 @@ class Command(BaseCommand):
             for db_key in settings.DATABASES:
                 db_name = settings.DATABASES[db_key]['NAME']
                 self.all_dbs.append(db_name)
-                self.drop_create_db(db_name, root_dir)
-
+                res = self.drop_create_db(settings.DATABASES[db_key], root_dir)
+                if res:
+                    print(res)
+                    return
             self.re_init_migrations()
             self.migrate_all()
         except:

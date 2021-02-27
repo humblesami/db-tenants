@@ -127,8 +127,7 @@ default_apps = INSTALLED_APPS
 default_apps = ['dj_admin'] + default_apps
 default_apps += ["rest_framework", "rest_framework.authtoken"]
 default_apps += ['dj_utils', 'customers', 'tenants']
-default_apps += ["polls"]
-default_apps += ['tenant_users', 'subscriptions']
+default_apps += ['polls', 'tenant_users', 'subscriptions']
 INSTALLED_APPS = default_apps
 
 if DEBUG:

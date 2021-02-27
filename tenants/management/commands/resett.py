@@ -2,6 +2,7 @@ import sys
 import traceback
 from django.conf import settings
 
+from tenants.middlewares import THREAD_LOCAL
 from tenants.models import Tenant
 from dj_utils.management.commands.reset import Command as ResetCommand
 
@@ -12,7 +13,7 @@ class Command(ResetCommand):
         try:
             root_dir = settings.BASE_DIR
             modes_dict = {'drop_create_db': 1, 'make': 2, 'migrate': 3}
-            mode = 3
+            mode = 99
             default_config = settings.DATABASES['default']
             tenant_names = []
 
@@ -23,21 +24,27 @@ class Command(ResetCommand):
                 tenant_names = []
                 pass
 
-            if mode == 1:
+            if mode == 1 or mode == 99:
                 self.drop_create_db(default_config, root_dir)
+
+            res = self.drop_create_db(default_config, root_dir)
+            if res:
+                print(res)
+                return
+
             self.all_dbs.append(default_config['NAME'])
 
             for tenant_dict in tenant_names:
                 new_config = default_config.copy()
                 new_config['NAME'] = tenant_dict['name']
-                if mode == 1:
-                    self.drop_create_db(new_config, root_dir)
+                res = self.drop_create_db(new_config, root_dir)
+                if res:
+                    print(res)
+                    return
                 self.all_dbs.append(new_config['NAME'])
 
-            if mode == 2:
-                self.re_init_migrations()
-            if mode == 3:
-                self.migrate_all()
+            self.re_init_migrations()
+            self.migrate_all()
             print('---Done----')
         except:
             eg = traceback.format_exception(*sys.exc_info())

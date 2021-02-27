@@ -1,6 +1,5 @@
 import os
 import glob
-import glob2
 
 
 def remove_migrations():
@@ -16,7 +15,7 @@ def remove_migrations():
 
 
 def remove_files_by_type(ext):
-    sub_res = glob2.glob('./**/*.'+ext)
+    sub_res = glob.glob('*.'+ext, recursive=True)
     cnt = 0
     for file_path in sub_res:
         cnt += 1
