@@ -1,0 +1,32 @@
+[
+    {
+        "model": "tenants.Tenant",
+        "pk": 1,
+        "fields": {
+            "name": "t1"
+        }
+    },
+    {
+        "model": "tenants.Tenant",
+        "pk": 2,
+        "fields": {
+            "name": "t2"
+        }
+    },
+    {
+        "model": "tenants.TenantApp",
+        "pk": 1,
+        "fields": {
+            "tenant_id": "1",
+            "name": "polls"
+        }
+    },
+    {
+        "model": "tenants.TenantApp",
+        "pk": 2,
+        "fields": {
+            "tenant_id": "2",
+            "name": "tenant_users"
+        }
+    }
+]

@@ -126,9 +126,11 @@ STATIC_URL = "/static/"
 default_apps = INSTALLED_APPS
 default_apps = ['dj_admin'] + default_apps
 default_apps += ["rest_framework", "rest_framework.authtoken"]
-default_apps += ['dj_utils', 'customers', 'tenants']
-default_apps += ['polls', 'tenant_users', 'subscriptions']
-INSTALLED_APPS = default_apps
+default_apps += ['dj_utils']
+SHARED_APPS = default_apps
+PUBLIC_APPS = ['customers', 'tenants', 'subscriptions']
+TENANT_APPS = ['polls', 'tenant_users']
+INSTALLED_APPS = SHARED_APPS + PUBLIC_APPS + TENANT_APPS
 
 if DEBUG:
     AUTH_PASSWORD_VALIDATORS = []

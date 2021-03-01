@@ -11,7 +11,7 @@ from django.conf import settings
 from django.core.management import call_command
 from django.core.management.base import BaseCommand
 
-from tenants.middlewares import THREAD_LOCAL
+from dj_utils.methods import get_error_message
 
 
 class Command(BaseCommand):
@@ -101,14 +101,47 @@ class Command(BaseCommand):
                     error_message += " " + er
             raise
 
-    def migrate_db(self, db_key):
-        cmd_str = 'migrate'
-        call_command(cmd_str, database=db_key)
+    def run_migrate(self, app_name='', db_key=None):
+        try:
+            cmd_str = 'migrate'
+            if app_name and db_key:
+                call_command(cmd_str, app_name, database=db_key)
+            elif app_name:
+                call_command(cmd_str, app_name)
+            elif db_key:
+                call_command(cmd_str, database=db_key)
+            else:
+                call_command(cmd_str)
+        except:
+            message = get_error_message()
+            if 'does not have migrations.' in message:
+                pass
+            else:
+                raise
+
+    def migrate_db(self, db_key, tenant_apps=None):
+        print('\n\nmigrating '+db_key)
+        shared_apps = settings.SHARED_APPS
+        public_apps = settings.PUBLIC_APPS
+        for app_name in shared_apps:
+            app_name = app_name.replace('django.contrib.','')
+            app_name = app_name.replace('rest_framework.', '')
+            self.run_migrate(app_name, db_key)
+
+        if tenant_apps is not None:
+            for app_name in tenant_apps:
+                self.run_migrate(app_name, db_key)
+            # settings.INSTALLED_APPS = shared_apps + tenant_apps
+        else:
+            for app_name in public_apps:
+                self.run_migrate(app_name, db_key)
+            # settings.INSTALLED_APPS = shared_apps + public_apps
+        # call_command('migrate', database=db_key)
         # Pinter@rt5
         fixture_path = self.get_dj_utils_path()
         fixture_path += '/fixtures/data.json'
         call_command('loaddata', fixture_path)
-        print('done with '+db_key)
+        print('\ndone with '+db_key+'\n\n')
 
     def handle(self, *args, **kwargs):
         try:

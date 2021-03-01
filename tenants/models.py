@@ -18,8 +18,21 @@ class TenantManager(models.Manager):
 class Tenant(models.Model):
     objects = TenantManager()
 
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
     active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name
+
+
+tenant_app_choices = []
+for app_name in settings.TENANT_APPS:
+    tenant_app_choices.append((app_name, app_name))
+
+
+class TenantApp(models.Model):
+    name = models.CharField(choices=tenant_app_choices, max_length=200)
+    tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE, related_name='apps')
 
     def __str__(self):
         return self.name

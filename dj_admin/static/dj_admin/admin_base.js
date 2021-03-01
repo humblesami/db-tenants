@@ -1,6 +1,7 @@
 $(function(){
     let host = window.location.host+'';
     let arr = host.split('.');
+    let installed_apps = [];
     if(arr && arr.length){
         if(!arr[0].startsWith('localhost:') && arr[0] != '127')
         {
