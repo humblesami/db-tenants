@@ -43,8 +43,6 @@ class Command(BaseCommand):
             password=db_config['PASSWORD'],
         )
         db_host_connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
-        # db_name = settings.DATABASES['default']['NAME']
-        # setattr(THREAD_LOCAL, "DB", default_db)
 
         if type (db_host_connection) is str:
             return db_host_connection
@@ -89,17 +87,7 @@ class Command(BaseCommand):
     def re_init_migrations(self):
         importlib.import_module('del')
         cmd_str = 'makemigrations'
-        try:
-            call_command(cmd_str)
-        except:
-            eg = traceback.format_exception(*sys.exc_info())
-            error_message = ''
-            cnt = 0
-            for er in eg:
-                cnt += 1
-                if not 'lib/python' in er and not 'lib\site-packages' in er:
-                    error_message += " " + er
-            raise
+        call_command(cmd_str)
 
     def run_migrate(self, app_name='', db_key=None):
         try:
@@ -140,7 +128,7 @@ class Command(BaseCommand):
         # Pinter@rt5
         fixture_path = self.get_dj_utils_path()
         fixture_path += '/fixtures/data.json'
-        call_command('loaddata', fixture_path)
+        call_command('loaddata', fixture_path, database=db_key)
         print('\ndone with '+db_key+'\n\n')
 
     def handle(self, *args, **kwargs):
