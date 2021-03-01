@@ -81,7 +81,7 @@ class Command(BaseCommand):
         db_cursor.execute(stmt)
         res = []
         if fetch:
-            db_cursor.dictfetchall()
+            res = db_cursor.fetchall()
         db_cursor.close()
         db_host_connection.close()
         return res
@@ -101,31 +101,22 @@ class Command(BaseCommand):
                     error_message += " " + er
             raise
 
-    def migrate_all(self, tenant_names=None):
-        if not tenant_names:
-            db_conns = settings.DATABASES
-        for db_key in db_conns:
-            db_name = db_conns[db_key]['NAME']
-            print("migrating " + db_name)
-            cmd_str = 'migrate'
-            call_command(cmd_str, db_key)
-            # Pinter@rt5
-            fixture_path = self.get_dj_utils_path()
-            fixture_path += '/fixtures/data.json'
-            call_command('loaddata', fixture_path)
-            print("done with " + db_name)
-
+    def migrate_db(self, db_key):
+        cmd_str = 'migrate'
+        call_command(cmd_str, database=db_key)
+        # Pinter@rt5
+        fixture_path = self.get_dj_utils_path()
+        fixture_path += '/fixtures/data.json'
+        call_command('loaddata', fixture_path)
+        print('done with '+db_key)
 
     def handle(self, *args, **kwargs):
         try:
             root_dir = settings.BASE_DIR
-            for db_key in settings.DATABASES:
-                res = self.drop_create_db(settings.DATABASES[db_key], root_dir)
-                if res:
-                    print(res)
-                    return
             self.re_init_migrations()
-            self.migrate_all()
+            for db_key in settings.DATABASES:
+                self.drop_create_db(settings.DATABASES[db_key], root_dir)
+                self.migrate_db(db_key)
         except:
             eg = traceback.format_exception(*sys.exc_info())
             error_message = ''
