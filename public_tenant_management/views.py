@@ -6,8 +6,9 @@ from django.http import HttpResponse
 from django.shortcuts import render
 
 # Create your views here.
-from .methods import now_str
-from .models import Area, Subscription, Package
+from dj_utils.methods import now_str
+from public_customers.models import Area
+from .models import Subscription, Package
 
 
 def get_subscription_charges(request):

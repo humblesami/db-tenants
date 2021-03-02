@@ -1,20 +1,20 @@
 [
     {
-        "model": "tenants.Tenant",
+        "model": "public_tenants.Tenant",
         "pk": 1,
         "fields": {
             "name": "t1"
         }
     },
     {
-        "model": "tenants.Tenant",
+        "model": "public_tenants.Tenant",
         "pk": 2,
         "fields": {
             "name": "t2"
         }
     },
     {
-        "model": "tenants.TenantApp",
+        "model": "public_tenants.TenantApp",
         "pk": 1,
         "fields": {
             "tenant_id": "1",
@@ -22,7 +22,7 @@
         }
     },
     {
-        "model": "tenants.TenantApp",
+        "model": "public_tenants.TenantApp",
         "pk": 2,
         "fields": {
             "tenant_id": "2",

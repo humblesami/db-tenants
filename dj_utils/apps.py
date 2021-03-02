@@ -1,5 +1,5 @@
 from django.apps import AppConfig
 
 
-class ModelDefaultsConfig(AppConfig):
+class DjUtilsConfig(AppConfig):
     name = 'dj_utils'

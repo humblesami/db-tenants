@@ -1,0 +1,8 @@
+.model-tokenproxy a{
+    color:red;
+}
+
+.module[class^="app-"]
+{
+    display:none;
+}

@@ -2,10 +2,10 @@
 import os
 import sys
 
-from tenants.middlewares import set_db_for_router
+from public_tenants.middlewares import set_db_for_router
 
 if __name__ == "__main__":
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "pollsapi.settings")
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "main_app.settings")
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:

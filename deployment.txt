@@ -165,7 +165,7 @@ your following paths are accurate like following
                 Require all granted
         </Directory>
 
-        <Directory /home/sami/django/isolated-db/pollsapi>
+        <Directory /home/sami/django/isolated-db/main_app>
                 <Files wsgi.py>
                         Require all granted
                 </Files>
@@ -173,7 +173,7 @@ your following paths are accurate like following
 
         WSGIDaemonProcess videotest python-path=/home/sami/django/isolated-db python-home=/home/sami/vens/isolated-db
         WSGIProcessGroup videotest
-        WSGIScriptAlias / /home/sami/django/isolated-db/pollsapi/wsgi.py
+        WSGIScriptAlias / /home/sami/django/isolated-db/main_app/wsgi.py
 </VirtualHost>
 
 

@@ -1,5 +1,5 @@
 from django.db import models
-from customers.models import Client
+from public_customers.models import Client
 from dj_utils.models import DefaultClass
 from dj_utils import methods
 

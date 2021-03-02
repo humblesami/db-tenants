@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 
 from django.db import models
 from django.db import connection
-from tenants.models import GlobalUser, Tenant
+from public_tenants.models import GlobalUser, Tenant
 
 
 class TenantUser(User):

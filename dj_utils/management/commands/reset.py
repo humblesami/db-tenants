@@ -12,6 +12,7 @@ from django.core.management import call_command
 from django.core.management.base import BaseCommand
 
 from dj_utils.methods import get_error_message
+from django.db import connections
 
 
 class Command(BaseCommand):
@@ -63,7 +64,6 @@ class Command(BaseCommand):
         db_cursor.execute(stmt)
         db_cursor.close()
         db_host_connection.close()
-
         print("Database " + db_config['NAME'] + " created")
 
     def exec_query_on_default(self, db_config, stmt, fetch=False):
@@ -84,10 +84,15 @@ class Command(BaseCommand):
         db_host_connection.close()
         return res
 
+    made = 0
+
     def re_init_migrations(self):
+        if self.made:
+            return
         importlib.import_module('del')
         cmd_str = 'makemigrations'
         call_command(cmd_str)
+        self.made = 1
 
     def run_migrate(self, app_name='', db_key=None):
         try:
@@ -105,7 +110,11 @@ class Command(BaseCommand):
             if 'does not have migrations.' in message:
                 pass
             else:
-                raise
+                if 'server closed the connection unexpectedly' in message:
+                    conn = connections['default']
+                    conn.connect()
+                else:
+                    raise
 
     def migrate_db(self, db_key, tenant_apps=None):
         print('\n\nmigrating '+db_key)
