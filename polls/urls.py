@@ -7,6 +7,7 @@ from rest_framework.routers import DefaultRouter
 
 from rest_framework.documentation import include_docs_urls
 
+from .views import hi
 
 router = DefaultRouter()
 router.register("polls", PollViewSet)
@@ -14,6 +15,7 @@ router.register("polls", PollViewSet)
 
 urlpatterns = [
     path("login/", LoginView.as_view(), name="login"),
+    path("hi/", hi),
     path("users/", UserCreate.as_view(), name="user_create"),
     path("polls/<int:pk>/choices/", ChoiceList.as_view(), name="polls_list"),
     path(
