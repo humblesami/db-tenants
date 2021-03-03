@@ -22,7 +22,7 @@ class Command(BaseCommand):
         module_path = settings.BASE_DIR + '/dj_utils'
         return module_path
 
-    def drop_create_db(self, db_config, root_dir):
+    def drop_create_db(self, db_config, root_dir, new=0):
         db_engine = db_config['ENGINE']
         arr = db_engine.split('.')
         if len(arr):
@@ -51,15 +51,15 @@ class Command(BaseCommand):
         db_cursor = db_host_connection.cursor()
         db_name = db_config['NAME']
 
-        # stmt = 'REVOKE CONNECT ON DATABASE '+db_name+' FROM public'
-        # db_cursor.execute(stmt)
-        stmt = """
-        SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity
-        WHERE pg_stat_activity.datname='"""+db_name+"""'
-        """
-        db_cursor.execute(stmt)
-        stmt = 'DROP DATABASE if exists ' + db_name
-        db_cursor.execute(stmt)
+        if not new:
+            stmt = """
+            SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity
+            WHERE pg_stat_activity.datname='"""+db_name+"""'
+            """
+            db_cursor.execute(stmt)
+            stmt = 'DROP DATABASE if exists ' + db_name
+            db_cursor.execute(stmt)
+
         stmt = 'CREATE DATABASE ' + db_name
         db_cursor.execute(stmt)
         db_cursor.close()

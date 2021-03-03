@@ -1,5 +1,5 @@
 (function(){
-    $('body').append('<style>.module[class^="app-"]{display:none;}</style>');
+    $('body').append('<div id="app-hider"><style>.module[class^="app-"]{display:none;}</style></div>');
     let shared_apps = [
         'auth'
     ];
@@ -64,7 +64,8 @@
                     }
                 },
                 error: function(er){
-                    console.log('error in request ', er)
+                    console.log('error in request ', er);
+                    $('#app-hider').remove();
                 }
             }
             $.ajax(ajax_options);

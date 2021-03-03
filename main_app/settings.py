@@ -129,7 +129,7 @@ default_apps += ["rest_framework", "rest_framework.authtoken"]
 default_apps += ['dj_utils']
 SHARED_APPS = default_apps
 PUBLIC_APPS = ['public_customers', 'public_tenants', 'public_tenant_management']
-TENANT_APPS = ['polls', 'tenant_users']
+TENANT_APPS = ['polls']
 INSTALLED_APPS = SHARED_APPS + PUBLIC_APPS + TENANT_APPS
 
 if DEBUG:

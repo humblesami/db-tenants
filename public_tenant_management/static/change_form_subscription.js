@@ -10,11 +10,15 @@ $(function(){
             el_due_amount.val(0);
             return;
         }
+        let module_url = '/subscription'
+        let host_url = window.location.protocol + '//' + window.location.host;
+        let api_url = '/package/charges';
+        let req_url = host_url + module_url + api_url;
         let options = {
             beforeSend: function(a, b){
-                //console.log(b.url);
+                console.log(b.url);
             },
-            url: '/package/charges',
+            url: req_url,
             data : {package_id: package_id},
             success:function(data){
                 el_due_amount.val(data);

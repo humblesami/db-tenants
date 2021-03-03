@@ -63,6 +63,27 @@ def now_str_number():
     return time_now_str
 
 
+def add_months(source_date, months):
+    res = add_interval('months', months, source_date)
+    return res
+
+
+def add_one_month_to_date(given_date):
+    given_date = add_interval('days', -1, given_date)
+    return add_months(given_date, 1)
+
+
+def get_days_difference(start_date, end_date):
+    seconds = dt_span_seconds(start_date, end_date)
+    days = seconds / 60 / 60 / 24
+    days = round(days)
+    return days
+
+
+def add_days(dt1, days):
+    res = add_interval('days', days, dt1)
+    return res
+
 def get_user_name(user):
     name = False
     if user.first_name:

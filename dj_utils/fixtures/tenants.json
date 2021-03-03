@@ -20,13 +20,5 @@
             "tenant_id": "1",
             "name": "polls"
         }
-    },
-    {
-        "model": "public_tenants.TenantApp",
-        "pk": 2,
-        "fields": {
-            "tenant_id": "2",
-            "name": "tenant_users"
-        }
     }
 ]

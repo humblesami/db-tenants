@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.forms import ModelForm
 from dj_utils.admin import ParentModelAdmin
 
-from .models import Package, PackageType, Subscription, Payment
+from .models import Package, PackageType, Subscription, Payment, Product
 
 
 class PackageTypeAdmin(ParentModelAdmin):
@@ -10,21 +10,25 @@ class PackageTypeAdmin(ParentModelAdmin):
     search_fields = ['name']
 
 
+class ProductAdmin(ParentModelAdmin):
+    search_fields = ['name']
+
+
 class PackageAdmin(ParentModelAdmin):
     list_display= ['name', 'package_type']
     search_fields = ['name', 'package_type']
     list_filter = ['package_type']
-    autocomplete_fields = ['package_type']
+    autocomplete_fields = ['package_type', 'products']
 
 
 class SubscriptionAdmin(ParentModelAdmin):
     list_display = ['__str__', 'price', 'connection_charges']
     search_fields = ['__str__']
+    autocomplete_fields = ['client', 'package']
     readonly_fields = ['expiry_date', 'created_at', 'updated_at', 'created_by', 'updated_by']
 
     class Media:
         js = (
-            'https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js',
             '/static/change_form_subscription.js',
         )
 
@@ -80,6 +84,7 @@ class PaymentAdmin(ParentModelAdmin):
         super().save_model(request, obj, form, change)
 
 
+admin.site.register(Product, ProductAdmin)
 admin.site.register(PackageType,PackageTypeAdmin)
 admin.site.register(Package, PackageAdmin)
 admin.site.register(Subscription, SubscriptionAdmin)

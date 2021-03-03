@@ -8,9 +8,7 @@ class ParentModelAdmin(admin.ModelAdmin):
     readonly_fields = ['created_at', 'updated_at', 'created_by', 'updated_by']
 
     class Media:
-        js = (
-            'https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js',  # jquery
-        )
+        js = ()
 
     def changeform_view(self, request, object_id=None, form_url='', extra_context=None):
         try:

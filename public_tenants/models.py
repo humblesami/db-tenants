@@ -20,6 +20,7 @@ class Tenant(models.Model):
 
     name = models.CharField(max_length=100, unique=True)
     active = models.BooleanField(default=True)
+    users = models.ManyToManyField(User, related_name='tenants')
 
     def __str__(self):
         return self.name
@@ -37,9 +38,3 @@ class TenantApp(models.Model):
     def __str__(self):
         return self.name
 
-
-class GlobalUser(User):
-    tenants = models.ManyToManyField(Tenant, related_name='users')
-
-    def save(self, *args, **kwargs):
-        super().save(args, kwargs)
