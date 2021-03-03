@@ -19,7 +19,7 @@ class TenantMiddleware:
         if arr:
             if len(arr):
                 host_name = arr[0]
-        default_config = shared_db = settings.DATABASES['default']
+        default_config = settings.DATABASES['default']
         shared_db = default_config['NAME']
         if current_db != shared_db:
             setattr(THREAD_LOCAL, "DB", shared_db)
