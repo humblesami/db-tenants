@@ -1,7 +1,4 @@
 from django.http import JsonResponse
-from django.shortcuts import render
-
-from main_app import settings
 from public_tenants.middlewares import THREAD_LOCAL
 from public_tenants.models import Tenant, TenantApp
 
