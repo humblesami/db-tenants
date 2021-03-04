@@ -16,7 +16,6 @@ from dj_utils import methods
 from .thread_local import THREAD_LOCAL
 
 
-
 class TenantManager(models.Manager):
     def get_queryset(self):
         current_db = connection.settings_dict['NAME']
@@ -29,10 +28,10 @@ class TenantManager(models.Manager):
 class Tenant(models.Model):
     objects = TenantManager()
 
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100, unique=True, blank=True)
     active = models.BooleanField(default=True)
-    users = models.ManyToManyField(User, related_name='tenants')
-    owner_email = models.CharField(max_length=200, null=True)
+    owner_email = models.CharField(max_length=200, blank=True, null=True)
+    users = models.ManyToManyField(User, related_name='tenants', blank=True)
     subscription = models.ForeignKey('public_tenant_management.Subscription', on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
@@ -43,37 +42,52 @@ class Tenant(models.Model):
         creating = False
         if not self.pk:
             creating = True
+
+        owner = None
+        app_names = []
+        client_name = self.name
+        email = self.owner_email
+        if self.subscription:
+            app_names = self.subscription.package.products.values_list('name', flat=True)
+            email = self.subscription.client.email
+            self.owner_email = email
+            client_name = self.subscription.client.name
+            self.name = client_name
+        else:
+            app_names = self.apps.values_list('name', flat=True)
+            if self.users.count():
+                owner = self.users[0]
+                email = owner.email
+
+        if not self.name:
+            raise ValueError('Invalid name')
         res = super().save()
         if creating:
-            client_name = self.name
-            email = self.owner_email
-
-            app_names = []
-            if self.subscription:
-                app_names = self.subscription.package.products.values_list('name', flat=True)
-                for app_name in app_names:
-                    TenantApp.objects.create(tenant_id=self.pk, name=app_name)
-            else:
-                app_names = self.apps.values_list('name', flat=True)
-
             tenant_arguments.db_to_create = client_name
-            importlib.import_module('tenant_create_db')
+            try:
+                importlib.import_module('tenant_create_db')
+            except:
+                message = methods.get_error_message()
+                if 'already exist' in message:
+                    pass
+                else:
+                    raise
 
-            tenant = Tenant.objects.create(name=client_name)
-            user = User.objects.filter(email=email)
-            if user:
-                user = user[0]
-            else:
-                user = User(
+            if not owner:
+                owner = User.objects.filter(email=email)
+                owner = owner[0]
+            if not owner:
+                owner = User(
                     email=email, username=email,
                     is_active=True
                 )
-                user.save()
-                user.set_password('123')  # replace with your real password
-                user.save()
+                owner.save()
+                owner.set_password('123')  # replace with your real password
+                owner.save()
 
-            tenant.users.add(user)
-            tenant.save()
+            if not self.users.count():
+                self.users.add(owner)
+                self.save()
 
             if not settings.DATABASES.get(client_name):
                 default_config = settings.DATABASES['default']
@@ -83,14 +97,14 @@ class Tenant(models.Model):
 
             call_command('new_tenant', name=client_name, apps=app_names)
             setattr(THREAD_LOCAL, "DB", client_name)
-            user = User(
+            super_tenant_user = User(
                 email=email, username=email,
                 last_login=methods.now_str(),
                 is_active=True, is_staff=True, is_superuser=True
             )
-            user.save()
-            user.set_password('123')
-            user.save()
+            super_tenant_user.save()
+            super_tenant_user.set_password('123')
+            super_tenant_user.save()
             setattr(THREAD_LOCAL, "DB", 'default')
         return res
 
@@ -106,7 +120,7 @@ def delete_repo(sender, instance, **kwargs):
             a = 1
         except:
             message = methods.get_error_message()
-            a = 1
+            raise
 
 
 tenant_app_choices = []
@@ -118,6 +132,10 @@ class TenantApp(models.Model):
     name = models.CharField(choices=tenant_app_choices, max_length=200)
     tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE, related_name='apps')
 
+    class Meta:
+        unique_together = (('name', 'tenant'),)
+
     def __str__(self):
         return self.name
+
 
