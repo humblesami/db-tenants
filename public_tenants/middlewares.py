@@ -1,11 +1,7 @@
-import threading
-from uuid import uuid4
-
 from django.conf import settings
 from django.db import connection
 from .models import Tenant
-
-THREAD_LOCAL = threading.local()
+from .thread_local import THREAD_LOCAL
 
 
 class TenantMiddleware:

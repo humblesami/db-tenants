@@ -1,16 +1,13 @@
 import importlib
-from datetime import datetime
+import tenant_arguments
 
 from django.db import models
 from django.conf import settings
-from django.contrib.auth.models import User
-from django.core.management import call_command
 from public_customers.models import Client
 from dj_utils.models import DefaultClass
 
 from dj_utils import methods
-from public_tenants.middlewares import THREAD_LOCAL
-from public_tenants.models import Tenant, TenantApp
+from public_tenants.models import Tenant
 
 
 class PackageType(DefaultClass):
@@ -65,57 +62,21 @@ class Subscription(DefaultClass):
         res = super().save()
         try:
             if self.active:
-                super_user = User.objects.filter(email=self.client.email)
-                if not super_user:
-                    try:
-                        importlib.import_module('create_db')
-                    except:
-                        message = methods.get_error_message()
-                        a = 1
+                try:
                     apps = self.package.products.values_list('name', flat=True)
-                    self.__class__.create_tenant(self.client.name, self.client.email, apps)
+                    tenant = Tenant(
+                        name=self.client.name,
+                        owner_email=self.client.email,
+                        subscription_id=self.pk
+                    )
+                    tenant.save()
+                except:
+                    message = methods.get_error_message()
+                    a = 1
         except:
             message = methods.get_error_message()
             self.active = False
         return res
-
-    @classmethod
-    def create_tenant(cls, client_name, email, apps):
-        tenant = Tenant.objects.create(name=client_name)
-        tenant_id = tenant.id
-
-        for app_name in apps:
-            app = TenantApp(name=app_name, tenant_id=tenant_id)
-            app.save()
-
-        user = User(
-            email=email, username=email,
-            is_active=True
-        )
-        user.save()
-        user.set_password('123')  # replace with your real password
-        user.save()
-
-        tenant.users.add(user)
-        tenant.save()
-
-        if not settings.DATABASES.get(client_name):
-            default_config = settings.DATABASES['default']
-            new_config = default_config.copy()
-            new_config['NAME'] = client_name
-            settings.DATABASES[client_name] = new_config
-
-        call_command('new_tenant', name=client_name, apps=apps)
-        setattr(THREAD_LOCAL, "DB", client_name)
-        user = User(
-            email=email, username=email,
-            last_login=methods.now_str(),
-            is_active=True, is_staff=True, is_superuser=True
-        )
-        user.save()
-        user.set_password('123')  # replace with your real password
-        user.save()
-        setattr(THREAD_LOCAL, "DB", 'default')
 
 
 class Payment(DefaultClass):
