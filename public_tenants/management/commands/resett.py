@@ -20,7 +20,7 @@ class Command(ResetCommand):
             fixture_path += '/fixtures/tenants.json'
             call_command('loaddata', fixture_path)
 
-            print('---Done----')
+            print('Done')
         except:
             eg = traceback.format_exception(*sys.exc_info())
             error_message = ''

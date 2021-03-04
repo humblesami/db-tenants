@@ -1,7 +1,3 @@
-import sys
-import traceback
-from psycopg2 import connect
-
 from django.conf import settings
 from django.core.management import BaseCommand
 from django.core.management import call_command

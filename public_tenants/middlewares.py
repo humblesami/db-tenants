@@ -1,7 +1,10 @@
+import threading
+from psycopg2 import sql
 from django.conf import settings
 from django.db import connection
-from .models import Tenant
-from .thread_local import THREAD_LOCAL
+# from .thread_local import THREAD_LOCAL
+
+THREAD_LOCAL = threading.local()
 
 
 class TenantMiddleware:
@@ -19,10 +22,15 @@ class TenantMiddleware:
         shared_db = default_config['NAME']
         if current_db != shared_db:
             setattr(THREAD_LOCAL, "DB", shared_db)
-        hosts = Tenant.objects.filter(name=host_name)
+
+        cur = connection.cursor()
+        query = "select name from public_tenants_tenant where name='{}'"
+        cur.execute(sql.SQL(query).format(sql.Identifier(host_name)))
+        hosts = cur.fetchall()
+        a = 1
         try:
-            if hosts:
-                host_name = hosts[0].name
+            if len(hosts):
+                host_name = hosts[0]
                 if not settings.DATABASES.get(host_name):
                     tenant_config = default_config.copy()
                     tenant_config['NAME'] = host_name

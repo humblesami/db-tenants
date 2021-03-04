@@ -1,5 +1,6 @@
 from django.http import JsonResponse
-from .thread_local import THREAD_LOCAL
+
+from public_tenants.middlewares import THREAD_LOCAL
 from public_tenants.models import Tenant, TenantApp
 
 

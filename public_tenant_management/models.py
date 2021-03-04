@@ -39,6 +39,7 @@ class Package(DefaultClass):
 class Subscription(DefaultClass):
     client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='subscriptions')
     package = models.ForeignKey(Package, on_delete=models.CASCADE)
+    db = models.CharField(unique=True, default='first', max_length=127)
     price = models.IntegerField(default=0)
     connection_charges = models.IntegerField(default=0)
     connection_date = models.DateField(auto_now_add=True, null=True)
@@ -52,22 +53,10 @@ class Subscription(DefaultClass):
         if not self.expiry_date:
             self.active = False
         res = super().save()
-        try:
-            if self.active:
-                try:
-                    apps = self.package.products.values_list('name', flat=True)
-                    tenant = Tenant(
-                        name=self.client.name,
-                        owner_email=self.client.email,
-                        subscription_id=self.pk
-                    )
-                    tenant.save()
-                except:
-                    message = methods.get_error_message()
-                    a = 1
-        except:
-            message = methods.get_error_message()
-            self.active = False
+        if self.active:
+            res = Tenant.objects.filter(name=self.db)
+            if not res:
+                Tenant.objects.create(subscription_id=self.pk)
         return res
 
 

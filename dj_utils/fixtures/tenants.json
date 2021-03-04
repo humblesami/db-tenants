@@ -4,7 +4,7 @@
         "model": "public_customers.Client",
         "fields": {
             "name": "c1",
-            "email": "samiakram@live.com"
+            "related_user": 1
         }
     },
     {
