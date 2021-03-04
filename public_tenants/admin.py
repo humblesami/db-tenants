@@ -2,8 +2,11 @@ from django.contrib import admin
 from public_tenants.models import Tenant, TenantApp
 
 
-class TenantAppInlineAdmin(admin.StackedInline):
+class TenantAppAdmin(admin.ModelAdmin):
     list_display = ('name', 'tenant')
+
+
+class TenantAppInlineAdmin(admin.StackedInline):
     model = TenantApp
 
 
@@ -12,3 +15,4 @@ class TenantAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Tenant, TenantAdmin)
+admin.site.register(TenantApp, TenantAppAdmin)

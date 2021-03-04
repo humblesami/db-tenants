@@ -10,13 +10,6 @@ from dj_utils import methods
 from public_tenants.models import Tenant
 
 
-class PackageType(DefaultClass):
-    name = models.CharField(max_length=200)
-
-    def __str__(self):
-        return self.name
-
-
 tenant_app_choices = []
 for app_name in settings.TENANT_APPS:
     tenant_app_choices.append((app_name, app_name))
@@ -33,10 +26,9 @@ class Package(DefaultClass):
     class Meta:
         pass
 
-    name= models.CharField(max_length=200)
+    name = models.CharField(max_length=200)
     active = models.BooleanField(default=True)
-    package_type = models.ForeignKey(PackageType, on_delete=models.CASCADE, related_name='packages', null=True)
-    price = models.IntegerField()
+    price = models.IntegerField(default=100)
     valid_for_months = models.IntegerField(default=1)
     products = models.ManyToManyField(Product, related_name='packages')
 
@@ -49,7 +41,7 @@ class Subscription(DefaultClass):
     package = models.ForeignKey(Package, on_delete=models.CASCADE)
     price = models.IntegerField(default=0)
     connection_charges = models.IntegerField(default=0)
-    connection_date = models.DateField()
+    connection_date = models.DateField(auto_now_add=True, null=True)
     expiry_date = models.DateField(null=True)
     active = models.BooleanField(default=False)
 

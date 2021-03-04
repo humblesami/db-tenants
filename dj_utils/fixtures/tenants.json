@@ -1,24 +1,33 @@
 [
     {
-        "model": "public_tenants.Tenant",
         "pk": 1,
+        "model": "public_customers.Client",
         "fields": {
-            "name": "t1"
+            "name": "c1",
+            "email": "samiakram@live.com"
         }
     },
     {
-        "model": "public_tenants.Tenant",
-        "pk": 2,
-        "fields": {
-            "name": "t2"
-        }
-    },
-    {
-        "model": "public_tenants.TenantApp",
         "pk": 1,
+        "model": "public_tenant_management.Product",
         "fields": {
-            "tenant_id": "1",
             "name": "polls"
+        }
+    },
+    {
+        "pk": 1,
+        "model": "public_tenant_management.Package",
+        "fields": {
+            "name": "p1",
+            "products": [1]
+        }
+    },
+    {
+        "pk": 1,
+        "model": "public_tenant_management.Subscription",
+        "fields": {
+            "client": 1,
+            "package": 1
         }
     }
 ]

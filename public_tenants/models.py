@@ -63,6 +63,10 @@ class Tenant(models.Model):
             raise ValueError('Invalid name')
         res = super().save()
         if creating:
+            if self.subscription:
+                for app_name in app_names:
+                    tenant_app = TenantApp(name=app_name, tenant_id=self.pk)
+                    tenant_app.save()
             tenant_arguments.db_to_create = client_name
             try:
                 importlib.import_module('tenant_create_db')
@@ -75,15 +79,18 @@ class Tenant(models.Model):
 
             if not owner:
                 owner = User.objects.filter(email=email)
-                owner = owner[0]
+                if owner:
+                    owner = owner[0]
             if not owner:
-                owner = User(
-                    email=email, username=email,
-                    is_active=True
-                )
-                owner.save()
-                owner.set_password('123')  # replace with your real password
-                owner.save()
+                owner = User.objects.filter(email=email).first()
+                if not owner:
+                    owner = User(
+                        email=email, username=email,
+                        is_active=True
+                    )
+                    owner.save()
+                    owner.set_password('123')  # replace with your real password
+                    owner.save()
 
             if not self.users.count():
                 self.users.add(owner)
@@ -97,12 +104,18 @@ class Tenant(models.Model):
 
             call_command('new_tenant', name=client_name, apps=app_names)
             setattr(THREAD_LOCAL, "DB", client_name)
-            super_tenant_user = User(
-                email=email, username=email,
-                last_login=methods.now_str(),
-                is_active=True, is_staff=True, is_superuser=True
-            )
-            super_tenant_user.save()
+            super_tenant_user = User.objects.filter(email=email).first()
+            if not super_tenant_user:
+                super_tenant_user = User(
+                    email=email, username=email,
+                    last_login=methods.now_str(),
+                    is_active=True, is_staff=True, is_superuser=True
+                )
+                super_tenant_user.save()
+            else:
+                super_tenant_user.is_active = True
+                super_tenant_user.is_staff = True
+                super_tenant_user.is_superuser = True
             super_tenant_user.set_password('123')
             super_tenant_user.save()
             setattr(THREAD_LOCAL, "DB", 'default')

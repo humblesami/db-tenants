@@ -2,12 +2,7 @@ from django.contrib import admin
 from django.forms import ModelForm
 from dj_utils.admin import ParentModelAdmin
 
-from .models import Package, PackageType, Subscription, Payment, Product
-
-
-class PackageTypeAdmin(ParentModelAdmin):
-    list_display = ['name']
-    search_fields = ['name']
+from .models import Package, Subscription, Payment, Product
 
 
 class ProductAdmin(ParentModelAdmin):
@@ -15,10 +10,9 @@ class ProductAdmin(ParentModelAdmin):
 
 
 class PackageAdmin(ParentModelAdmin):
-    list_display= ['name', 'package_type']
-    search_fields = ['name', 'package_type']
-    list_filter = ['package_type']
-    autocomplete_fields = ['package_type', 'products']
+    list_display= ['name']
+    search_fields = ['name']
+    autocomplete_fields = ['products']
 
 
 class SubscriptionAdmin(ParentModelAdmin):
@@ -85,7 +79,6 @@ class PaymentAdmin(ParentModelAdmin):
 
 
 admin.site.register(Product, ProductAdmin)
-admin.site.register(PackageType,PackageTypeAdmin)
 admin.site.register(Package, PackageAdmin)
 admin.site.register(Subscription, SubscriptionAdmin)
 admin.site.register(Payment, PaymentAdmin)

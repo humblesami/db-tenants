@@ -29,11 +29,11 @@ class Area(DefaultClass):
 
 class Client(DefaultClass):
     name = models.CharField(max_length=200)
-    area = models.ForeignKey(Area, related_name='clients', on_delete=models.CASCADE)
+    area = models.ForeignKey(Area, related_name='clients', null=True, blank=True, on_delete=models.CASCADE)
 
     father_name = models.CharField(max_length=200, null=True, blank=True)
     mobile = models.CharField(max_length=200, null=True, blank=True)
-    email = models.CharField(max_length=200, null=True, blank=True)
+    email = models.CharField(max_length=200)
     cnic = models.CharField(max_length=200, unique=True, null=True, blank=True)
     address = models.CharField(max_length=1024, null=True, blank=True)
     # balance is here...
