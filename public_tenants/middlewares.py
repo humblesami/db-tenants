@@ -1,11 +1,9 @@
-import threading
-from psycopg2 import sql
 from django.conf import settings
 from django.db import connection
-
 from dj_utils.methods import get_error_message
 
-THREAD_LOCAL = threading.local()
+from public_tenants.models import Tenant
+from public_tenants.change_db import set_db_for_router
 
 
 class TenantMiddleware:
@@ -16,6 +14,7 @@ class TenantMiddleware:
         current_db = connection.settings_dict['NAME']
         sub_domain = request.get_host().split(":")[0].lower()
         arr = sub_domain.split('.')
+        host_name = ''
         if arr:
             if len(arr):
                 host_name = arr[0]
@@ -23,35 +22,21 @@ class TenantMiddleware:
                     return
                 if current_db == host_name:
                     return
-        if host_name and not host_name.startswith('localhost') and not host_name.startswith('127'):
+        not_local = (not host_name.startswith('localhost')) and (not host_name.startswith('127'))
+        if host_name and not_local:
             if current_db != host_name:
                 default_config = settings.DATABASES['default']
                 shared_db = default_config['NAME']
                 if current_db != shared_db:
-                    set_db_for_router(shared_db)
+                    set_db_for_router(shared_db, default_config)
                 try:
-                    cur = connection.cursor()
-                    query = "select name from public_tenants_tenant where name='{}'"
-                    cur.execute(sql.SQL(query).format(sql.Identifier(host_name)))
-                    hosts = cur.fetchall()
+                    hosts = list(Tenant.objects.filter(name=host_name).all().values('name'))
                     if len(hosts):
-                        host_name = hosts[0]
-                        if not settings.DATABASES.get(host_name):
-                            tenant_config = default_config.copy()
-                            tenant_config['NAME'] = host_name
-                            settings.DATABASES[host_name] = tenant_config
-                        set_db_for_router(host_name)
+                        host_name = hosts[0]['name']
+                        set_db_for_router(host_name, default_config)
                 except:
                     message = get_error_message()
                     pass
         response = self.get_response(request)
         return response
 
-
-def get_current_db_name():
-    res = getattr(THREAD_LOCAL, "DB", None)
-    return res
-
-
-def set_db_for_router(db):
-    setattr(THREAD_LOCAL, "DB", db)

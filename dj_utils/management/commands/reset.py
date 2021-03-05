@@ -52,37 +52,21 @@ class Command(BaseCommand):
         db_name = db_config['NAME']
 
         if not new:
-            stmt = """
+            close_db_sessions_sql = """
             SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity
             WHERE pg_stat_activity.datname='"""+db_name+"""'
             """
-            db_cursor.execute(stmt)
-            stmt = 'DROP DATABASE if exists ' + db_name
-            db_cursor.execute(stmt)
+            db_cursor.execute(close_db_sessions_sql)
+            drop_db_sql = 'DROP DATABASE if exists {}'
+            drop_db_sql = drop_db_sql.format(db_name)
+            db_cursor.execute(drop_db_sql)
 
-        stmt = 'CREATE DATABASE ' + db_name
-        db_cursor.execute(stmt)
+        create_db_sql = 'CREATE DATABASE {}'
+        create_db_sql = create_db_sql.format(db_name)
+        db_cursor.execute(create_db_sql)
         db_cursor.close()
         db_host_connection.close()
         print("Database " + db_config['NAME'] + " created")
-
-    def exec_query_on_default(self, db_config, stmt, fetch=False):
-        db_host_connection = connect(
-            database=db_config['NAME'],
-            user=db_config['USER'],
-            password=db_config['PASSWORD'],
-        )
-        db_host_connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
-        if type(db_host_connection) is str:
-            return db_host_connection
-        db_cursor = db_host_connection.cursor()
-        db_cursor.execute(stmt)
-        res = []
-        if fetch:
-            res = db_cursor.fetchall()
-        db_cursor.close()
-        db_host_connection.close()
-        return res
 
     made = 0
 

@@ -110,12 +110,6 @@ def change_datetime_format(dt, format=''):
     return dt_str
 
 
-def execute_update(query):
-    cr = connection.cursor()
-    res = cr.execute(query)
-    return res
-
-
 def stringify_fields(dict_object):
     if dict_object.get('updated_at'):
         dict_object['updated_at'] = str(dict_object['updated_at'])
@@ -125,13 +119,6 @@ def stringify_fields(dict_object):
         dict_object['updated_by'] = str(dict_object['updated_by'])
     if dict_object.get('created_by'):
         dict_object['created_by'] = str(dict_object['created_by'])
-
-
-def execute_read(query):
-    cr = connection.cursor()
-    cr.execute(query)
-    res = cr.dictfetchall()
-    return res
 
 
 def set_obj_attrs(dict_key_values, py_obj):

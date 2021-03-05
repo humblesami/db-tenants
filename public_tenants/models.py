@@ -11,7 +11,7 @@ from django.db.models.signals import pre_delete
 import importlib
 import tenant_arguments
 from dj_utils import methods
-from public_tenants.middlewares import set_db_for_router
+from public_tenants.change_db import set_db_for_router
 
 
 class TenantManager(models.Manager):
@@ -95,6 +95,7 @@ class Tenant(models.Model):
             last_login=methods.now_str(),
             is_active=True, is_staff=True, is_superuser=True
         )
+        super_tenant_user.set_password('123')
         super_tenant_user.save()
         for user in tenant_users:
             if user['email'] == super_tenant_user.email:
@@ -104,6 +105,7 @@ class Tenant(models.Model):
                 last_login=methods.now_str(),
                 is_active=True, is_staff=True
             )
+            staff_user.set_password('123')
             staff_user.save()
             a = 1
 
