@@ -1,6 +1,6 @@
 from django.http import JsonResponse
 
-from public_tenants.middlewares import THREAD_LOCAL
+from public_tenants.middlewares import set_db_for_router
 from public_tenants.models import Tenant, TenantApp
 
 
@@ -10,7 +10,7 @@ def get_tenant_apps(request):
     if arr:
         if len(arr):
             host_name = arr[0]
-    setattr(THREAD_LOCAL, "DB", 'default')
+    set_db_for_router('')
     tenant = Tenant.objects.filter(name=host_name)
     apps = []
     if tenant:

@@ -11,7 +11,7 @@ from django.db.models.signals import pre_delete
 import importlib
 import tenant_arguments
 from dj_utils import methods
-from public_tenants.middlewares import THREAD_LOCAL
+from public_tenants.middlewares import set_db_for_router
 
 
 class TenantManager(models.Manager):
@@ -77,7 +77,7 @@ class Tenant(models.Model):
 
             call_command('new_tenant', name=self.name, apps=app_names)
             self.add_users_to_new_db()
-            setattr(THREAD_LOCAL, "DB", 'default')
+            set_db_for_router('')
         return res
 
     def add_users_to_new_db(self):
@@ -85,7 +85,7 @@ class Tenant(models.Model):
         email = self.owner.email
         tenant_users = self.users.all().values_list('email', flat=True)
 
-        setattr(THREAD_LOCAL, "DB", new_db)
+        set_db_for_router(new_db)
         db = connection.settings_dict['NAME']
 
         super_tenant_user = User(
