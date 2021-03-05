@@ -76,25 +76,26 @@ class Tenant(models.Model):
                 settings.DATABASES[self.name] = new_config
 
             call_command('new_tenant', name=self.name, apps=app_names)
-            self.add_users_to_new_db()
+            try:
+                self.add_users_to_new_db()
+            except:
+                message = methods.get_error_message()
+                a = 1
             set_db_for_router('')
         return res
 
     def add_users_to_new_db(self):
         new_db = self.name
         email = self.owner.email
-        tenant_users = self.users.all().values_list('email', flat=True)
+        tenant_users = list(self.users.all().values('email'))
 
         set_db_for_router(new_db)
-        db = connection.settings_dict['NAME']
-
         super_tenant_user = User(
             email=email, username=email,
             last_login=methods.now_str(),
             is_active=True, is_staff=True, is_superuser=True
         )
         super_tenant_user.save()
-        db = connection.settings_dict['NAME']
         for user in tenant_users:
             if user['email'] == super_tenant_user.email:
                 continue
@@ -104,7 +105,6 @@ class Tenant(models.Model):
                 is_active=True, is_staff=True
             )
             staff_user.save()
-            db = connection.settings_dict['NAME']
             a = 1
 
 

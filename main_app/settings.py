@@ -57,6 +57,8 @@ MIDDLEWARE = [
     "public_tenants.middlewares.TenantMiddleware",
 ]
 
+DATABASE_ROUTERS = ["public_tenants.router.TenantRouter"]
+
 ROOT_URLCONF = "main_app.urls"
 
 TEMPLATES = [
@@ -89,8 +91,6 @@ DATABASES = {
         "PASSWORD": "123"
     },
 }
-
-DATABASE_ROUTERS = ["public_tenants.router.TenantRouter"]
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
