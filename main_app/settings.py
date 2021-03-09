@@ -54,10 +54,10 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "public_tenants.middlewares.TenantMiddleware",
+    "tenant_management.middlewares.TenantMiddleware",
 ]
 
-DATABASE_ROUTERS = ["public_tenants.router.TenantRouter"]
+DATABASE_ROUTERS = ["tenant_management.router.TenantRouter"]
 
 ROOT_URLCONF = "main_app.urls"
 
@@ -124,12 +124,18 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 default_apps = INSTALLED_APPS
-default_apps = ['dj_admin'] + default_apps
-default_apps += ["rest_framework", "rest_framework.authtoken"]
-default_apps += ['dj_utils']
-SHARED_APPS = default_apps
-PUBLIC_APPS = ['public_customers', 'public_tenants', 'public_tenant_management']
+ADMIN_APPS = ['dj_admin', 'dj_utils']
+
+PIP_APPS = ["rest_framework", "rest_framework.authtoken"]
+
+PUBLIC_APPS = ['tenant_customers', 'tenant_management', 'tenant_subscriptions']
+ADMIN_PUBLIC_APPS = ['tenant_admin']
 TENANT_APPS = ['polls']
+
+# Following apps are loaded right to left
+ADMIN_APPS = ADMIN_PUBLIC_APPS + ADMIN_APPS
+SHARED_APPS = ADMIN_APPS + default_apps + PIP_APPS
+
 INSTALLED_APPS = SHARED_APPS + PUBLIC_APPS + TENANT_APPS
 
 if DEBUG:

@@ -11,7 +11,7 @@ from django.db.models.signals import pre_delete
 import importlib
 import tenant_arguments
 from dj_utils import methods
-from public_tenants.change_db import set_db_for_router
+from tenant_management.change_db import set_db_for_router
 
 
 class TenantManager(models.Manager):
@@ -30,7 +30,7 @@ class Tenant(models.Model):
     active = models.BooleanField(default=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, blank=True)
     users = models.ManyToManyField(User, related_name='tenants', blank=True)
-    subscription = models.ForeignKey('public_tenant_management.Subscription', on_delete=models.CASCADE, null=True, blank=True)
+    subscription = models.ForeignKey('tenant_subscriptions.Subscription', on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return self.name

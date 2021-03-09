@@ -1,5 +1,5 @@
 from django.contrib import admin
-from public_tenants.models import Tenant, TenantApp
+from tenant_management.models import Tenant, TenantApp
 
 
 class TenantAppAdmin(admin.ModelAdmin):

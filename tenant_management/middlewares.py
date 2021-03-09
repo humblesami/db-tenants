@@ -2,8 +2,8 @@ from django.conf import settings
 from django.db import connection
 from dj_utils.methods import get_error_message
 
-from public_tenants.models import Tenant
-from public_tenants.change_db import set_db_for_router
+from tenant_management.models import Tenant
+from tenant_management.change_db import set_db_for_router
 
 
 class TenantMiddleware:

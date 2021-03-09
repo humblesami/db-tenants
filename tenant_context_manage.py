@@ -2,7 +2,7 @@
 import os
 import sys
 
-from public_tenants.middlewares import set_db_for_router
+from tenant_management.middlewares import set_db_for_router
 
 if __name__ == "__main__":
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "main_app.settings")

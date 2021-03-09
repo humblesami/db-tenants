@@ -1,13 +1,10 @@
-import importlib
-import tenant_arguments
-
 from django.db import models
 from django.conf import settings
-from public_customers.models import Client
+from tenant_customers.models import Client
 from dj_utils.models import DefaultClass
 
 from dj_utils import methods
-from public_tenants.models import Tenant
+from tenant_management.models import Tenant
 
 
 tenant_app_choices = []

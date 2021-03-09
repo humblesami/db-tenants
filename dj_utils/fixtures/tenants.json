@@ -1,7 +1,7 @@
 [
     {
         "pk": 1,
-        "model": "public_customers.Client",
+        "model": "tenant_customers.Client",
         "fields": {
             "name": "c1",
             "related_user": 1
@@ -9,14 +9,14 @@
     },
     {
         "pk": 1,
-        "model": "public_tenant_management.Product",
+        "model": "tenant_subscriptions.Product",
         "fields": {
             "name": "polls"
         }
     },
     {
         "pk": 1,
-        "model": "public_tenant_management.Package",
+        "model": "tenant_subscriptions.Package",
         "fields": {
             "name": "p1",
             "products": [1]
@@ -24,7 +24,7 @@
     },
     {
         "pk": 1,
-        "model": "public_tenant_management.Subscription",
+        "model": "tenant_subscriptions.Subscription",
         "fields": {
             "client": 1,
             "package": 1

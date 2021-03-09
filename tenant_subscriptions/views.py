@@ -7,7 +7,7 @@ from django.shortcuts import render
 
 # Create your views here.
 from dj_utils.methods import now_str
-from public_customers.models import Area
+from tenant_customers.models import Area
 from .models import Subscription, Package
 
 

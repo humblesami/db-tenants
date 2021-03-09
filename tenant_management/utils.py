@@ -1,5 +1,5 @@
 from django.db import connection
-from public_tenants.models import Tenant
+from tenant_management.models import Tenant
 
 
 def hostname_from_request(request):

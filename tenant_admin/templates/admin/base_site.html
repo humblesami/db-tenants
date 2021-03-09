@@ -1,0 +1,7 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static %}
+
+{% block usertools %}
+    {{block.super}}
+    <script src="{% static 'js/tenant_apps.js' %}"></script>
+{% endblock %}
