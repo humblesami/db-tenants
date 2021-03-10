@@ -9,14 +9,14 @@
     },
     {
         "pk": 1,
-        "model": "tenant_subscriptions.Product",
+        "model": "package_subscriptions.Product",
         "fields": {
             "name": "polls"
         }
     },
     {
         "pk": 1,
-        "model": "tenant_subscriptions.Package",
+        "model": "package_subscriptions.Package",
         "fields": {
             "name": "p1",
             "products": [1]
@@ -24,7 +24,7 @@
     },
     {
         "pk": 1,
-        "model": "tenant_subscriptions.Subscription",
+        "model": "package_subscriptions.Subscription",
         "fields": {
             "client": 1,
             "package": 1

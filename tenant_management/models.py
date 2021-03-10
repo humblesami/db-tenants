@@ -30,7 +30,7 @@ class Tenant(models.Model):
     active = models.BooleanField(default=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, blank=True)
     users = models.ManyToManyField(User, related_name='tenants', blank=True)
-    subscription = models.ForeignKey('tenant_subscriptions.Subscription', on_delete=models.CASCADE, null=True, blank=True)
+    subscription = models.ForeignKey('package_subscriptions.Subscription', on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return self.name

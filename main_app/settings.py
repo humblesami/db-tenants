@@ -128,7 +128,7 @@ ADMIN_APPS = ['dj_admin', 'dj_utils']
 
 PIP_APPS = ["rest_framework", "rest_framework.authtoken"]
 
-PUBLIC_APPS = ['tenant_customers', 'tenant_management', 'tenant_subscriptions']
+PUBLIC_APPS = ['tenant_customers', 'tenant_management', 'package_subscriptions']
 ADMIN_PUBLIC_APPS = ['tenant_admin']
 TENANT_APPS = ['polls']
 
