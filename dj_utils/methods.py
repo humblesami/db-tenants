@@ -110,6 +110,10 @@ def change_datetime_format(dt, format=''):
     return dt_str
 
 
+def get_table_name_from_model(model):
+    return model._meta.db_table
+
+
 def stringify_fields(dict_object):
     if dict_object.get('updated_at'):
         dict_object['updated_at'] = str(dict_object['updated_at'])

@@ -1,19 +1,12 @@
 from django.db import models
-from django.conf import settings
-from tenant_customers.models import Client
+from crm.models import Client
 from dj_utils.models import DefaultClass
-
 from dj_utils import methods
-from tenant_management.models import Tenant
-
-
-tenant_app_choices = []
-for app_name in settings.TENANT_APPS:
-    tenant_app_choices.append((app_name, app_name))
 
 
 class Product(DefaultClass):
-    name = models.CharField(choices=tenant_app_choices, max_length=200)
+    name = models.CharField(max_length=200)
+    price = models.IntegerField(default=0)
 
     def __str__(self):
         return self.name
@@ -50,10 +43,6 @@ class Subscription(DefaultClass):
         if not self.expiry_date:
             self.active = False
         res = super().save()
-        if self.active:
-            res = Tenant.objects.filter(name=self.db)
-            if not res:
-                Tenant.objects.create(subscription_id=self.pk)
         return res
 
 

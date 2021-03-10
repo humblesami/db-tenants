@@ -100,7 +100,7 @@ class Command(BaseCommand):
                 else:
                     raise
 
-    def migrate_db(self, db_key, tenant_apps=None):
+    def migrate_db(self, db_key, customer_apps=None):
         print('\n\nmigrating '+db_key)
         shared_apps = settings.SHARED_APPS
         public_apps = settings.PUBLIC_APPS
@@ -109,10 +109,10 @@ class Command(BaseCommand):
             app_name = app_name.replace('rest_framework.', '')
             self.run_migrate(app_name, db_key)
 
-        if tenant_apps is not None:
-            for app_name in tenant_apps:
+        if customer_apps is not None:
+            for app_name in customer_apps:
                 self.run_migrate(app_name, db_key)
-            # settings.INSTALLED_APPS = shared_apps + tenant_apps
+            # settings.INSTALLED_APPS = shared_apps + customer_apps
         else:
             for app_name in public_apps:
                 self.run_migrate(app_name, db_key)

@@ -16,8 +16,12 @@ class Command(ResetCommand):
             self.re_init_migrations()
             self.migrate_db('default')
 
-            fixture_path = self.get_dj_utils_path()
-            fixture_path += '/fixtures/tenants.json'
+            fixture_path = root_dir + '/crm'
+            fixture_path += '/fixtures/data.json'
+            call_command('loaddata', fixture_path)
+
+            fixture_path = root_dir + '/package_subscriptions'
+            fixture_path += '/fixtures/data.json'
             call_command('loaddata', fixture_path)
 
             print('Done')

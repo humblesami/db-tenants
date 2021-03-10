@@ -1,9 +1,6 @@
 from django.contrib import admin
-from .models import Tenant, TenantApp
-
-
-class TenantAppAdmin(admin.ModelAdmin):
-    list_display = ('name', 'tenant')
+from tenant_management.models import TenantApp
+from .models import Tenant
 
 
 class TenantAppInlineAdmin(admin.StackedInline):
@@ -15,4 +12,3 @@ class TenantAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Tenant, TenantAdmin)
-admin.site.register(TenantApp, TenantAppAdmin)

@@ -1,11 +1,11 @@
 # from django.contrib.auth.models import User
-from django.db import models
+from django.db import models, transaction
 from django.db import connection
 from django.conf import settings
 from django.dispatch import receiver
 from django.contrib.auth.models import User
 from django.core.management import call_command
-from django.db.models.signals import pre_delete
+from django.db.models.signals import post_save, post_delete
 
 
 import importlib
@@ -30,7 +30,6 @@ class Tenant(models.Model):
     active = models.BooleanField(default=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, blank=True)
     users = models.ManyToManyField(User, related_name='tenants', blank=True)
-    subscription = models.ForeignKey('package_subscriptions.Subscription', on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -40,49 +39,55 @@ class Tenant(models.Model):
         creating = False
         if not self.pk:
             creating = True
+            self.get_owner()
 
-        app_names = []
-        if self.subscription:
-            self.owner = self.subscription.client.related_user
-            app_names = self.subscription.package.products.values_list('name', flat=True)
-            self.name = self.subscription.db
-        else:
-            app_names = self.apps.values_list('name', flat=True)
-            if self.users.count():
-                self.owner = self.users[0]
+        if not self.name:
+            raise ValueError('Name cannot be blank')
+        if not self.owner:
+            raise ValueError('Name cannot be blank')
         res = super().save()
         if creating:
-            if self.subscription:
-                for app_name in app_names:
-                    tenant_app = TenantApp(name=app_name, tenant_id=self.pk)
-                    tenant_app.save()
-            tenant_arguments.db_to_create = self.name
-            try:
-                importlib.import_module('tenant_create_db')
-            except:
-                message = methods.get_error_message()
-                if 'already exist' in message:
-                    pass
-                else:
-                    raise
-
-            if not self.owner:
-                raise ValueError('Invalid owner')
-
-            if not settings.DATABASES.get(self.name):
-                default_config = settings.DATABASES['default']
-                new_config = default_config.copy()
-                new_config['NAME'] = self.name
-                settings.DATABASES[self.name] = new_config
-
-            call_command('new_tenant', name=self.name, apps=app_names)
-            try:
-                self.add_users_to_new_db()
-            except:
-                message = methods.get_error_message()
-                a = 1
-            set_db_for_router('')
+            app_names = self.get_apps()
+            self.create_tenant(app_names)
         return res
+
+    def get_apps(self):
+        app_names = settings.TENANT_APPS
+        return app_names
+
+    def get_owner(self):
+        pass
+
+    def create_tenant(self, app_names):
+        for app_name in app_names:
+            tenant_app = TenantApp(name=app_name, tenant_id=self.pk)
+            tenant_app.save()
+        tenant_arguments.db_to_create = self.name
+        try:
+            importlib.import_module('tenant_create_db')
+        except:
+            message = methods.get_error_message()
+            if 'already exist' in message:
+                pass
+            else:
+                raise
+
+        if not self.owner:
+            raise ValueError('Invalid owner')
+
+        if not settings.DATABASES.get(self.name):
+            default_config = settings.DATABASES['default']
+            new_config = default_config.copy()
+            new_config['NAME'] = self.name
+            settings.DATABASES[self.name] = new_config
+
+        call_command('new_tenant', name=self.name, apps=app_names)
+        try:
+            self.add_users_to_new_db()
+        except:
+            message = methods.get_error_message()
+            a = 1
+        set_db_for_router('')
 
     def add_users_to_new_db(self):
         new_db = self.name
@@ -110,20 +115,6 @@ class Tenant(models.Model):
             a = 1
 
 
-@receiver(pre_delete)
-def delete_repo(sender, instance, **kwargs):
-    if type(instance) == Tenant:
-
-        try:
-            db_name = instance.name
-            tenant_arguments.db_to_drop = db_name
-            importlib.import_module('tenant_drop_db')
-            a = 1
-        except:
-            message = methods.get_error_message()
-            raise
-
-
 tenant_app_choices = []
 for app_name in settings.TENANT_APPS:
     tenant_app_choices.append((app_name, app_name))
@@ -140,3 +131,21 @@ class TenantApp(models.Model):
         return self.name
 
 
+def add_owner_to_users(instance):
+    if not instance.users.all():
+        instance.users.add(instance.owner)
+
+
+def on_tenant_saved(sender, instance, created, **kwargs):
+    if created:
+        transaction.on_commit(lambda: add_owner_to_users(instance))
+
+
+def drop_db(sender, instance, **kwargs):
+    db_name = instance.name
+    tenant_arguments.db_to_drop = db_name
+    importlib.import_module('tenant_drop_db')
+
+
+post_save.connect(on_tenant_saved, sender=Tenant)
+post_delete.connect(drop_db, sender=Tenant)

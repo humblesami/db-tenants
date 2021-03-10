@@ -18,7 +18,6 @@ $('body').append('<div id="app-hider"><style>.module[class^="app-"]{display:none
         let is_sub_domain = get_is_sub_domain();
         let host_url = window.location.protocol +'//' + window.location.host;
         let installed_apps = [];
-        let project_host_name = '';
 
         let api_url = '/tenant/get-apps';
         let req_url = host_url + api_url;
@@ -51,10 +50,27 @@ $('body').append('<div id="app-hider"><style>.module[class^="app-"]{display:none
         $.ajax(ajax_options);
     })
 
+
+    function get_domain()
+    {
+        var firstDot = window.location.hostname.indexOf('.');
+        var tld = ".net";
+        var isSubdomain = firstDot < window.location.hostname.indexOf(tld);
+        var domain;
+        if (isSubdomain) {
+            domain = window.location.hostname.substring(firstDot == -1 ? 0 : firstDot + 1);
+        }
+        else {
+          domain = window.location.hostname;
+        }
+        return domain;
+    }
+
     function get_is_sub_domain(){
         let host_name = window.location.host + '';
         let arr = host_name.split('.');
         let is_sub_domain = false;
+        let domain = get_domain();
         if(arr && arr.length && arr.length > 1){
             if(arr.length == 2)
             {
@@ -64,8 +80,8 @@ $('body').append('<div id="app-hider"><style>.module[class^="app-"]{display:none
                 }
             }
             else{
-                let domain = host_name.replace(arr[0]);
-                if(domain == project_host_name)
+                let host_name_after_first_dot = host_name.replace(arr[0]);
+                if(host_name_after_first_dot == domain)
                 {
                     is_sub_domain = true;
                 }

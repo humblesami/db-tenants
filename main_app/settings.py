@@ -54,10 +54,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "tenant_management.middlewares.TenantMiddleware",
 ]
-
-DATABASE_ROUTERS = ["tenant_management.router.TenantRouter"]
 
 ROOT_URLCONF = "main_app.urls"
 
@@ -122,20 +119,20 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
+DATABASE_ROUTERS = ["tenant_management.router.TenantRouter"]
+MIDDLEWARE.append("tenant_management.middlewares.TenantMiddleware")
+
 STATIC_URL = "/static/"
 default_apps = INSTALLED_APPS
-ADMIN_APPS = ['dj_admin', 'dj_utils']
-
+ADMIN_APPS = ['dj_utils']
 PIP_APPS = ["rest_framework", "rest_framework.authtoken"]
-
-PUBLIC_APPS = ['tenant_customers', 'tenant_management', 'package_subscriptions']
+PUBLIC_APPS = ['crm', 'package_subscriptions', 'tenant_management', 'tenant_subscriptions']
 ADMIN_PUBLIC_APPS = ['tenant_admin']
 TENANT_APPS = ['polls']
 
 # Following apps are loaded right to left
 ADMIN_APPS = ADMIN_PUBLIC_APPS + ADMIN_APPS
 SHARED_APPS = ADMIN_APPS + default_apps + PIP_APPS
-
 INSTALLED_APPS = SHARED_APPS + PUBLIC_APPS + TENANT_APPS
 
 if DEBUG:
