@@ -1,6 +1,17 @@
 For multi-tenant with isolated db
 https://books.agiliq.com/projects/django-multi-tenant/en/latest/isolated-database.html
 
+For pyvenv
+-------------------------------
+$curl https://pyenv.run | bash
+
+export PATH="~/.pyenv/bin:$PATH"
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
+
+$ source ~/.bashrc
+-------------------------------
+
 Guide For wsgi:
 https://modwsgi.readthedocs.io/en/master/user-guides/quick-installation-guide.html
 
