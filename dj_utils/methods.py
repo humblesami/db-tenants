@@ -114,6 +114,18 @@ def get_table_name_from_model(model):
     return model._meta.db_table
 
 
+def get_current_db(connection):
+    return connection.settings_dict['NAME']
+
+
+def add_new_connection(settings, db_name):
+    if not settings.DATABASES.get(db_name):
+        default_config = settings.DATABASES['default']
+        new_config = default_config.copy()
+        new_config['NAME'] = db_name
+        settings.DATABASES[db_name] = new_config
+
+
 def stringify_fields(dict_object):
     if dict_object.get('updated_at'):
         dict_object['updated_at'] = str(dict_object['updated_at'])

@@ -68,9 +68,7 @@ class Tenant(models.Model):
         except:
             message = methods.get_error_message()
             if 'already exist' in message:
-                pass
-            else:
-                raise
+                raise ValueError('Database "' + self.name+'" already exists, please first drop it')
 
         if not self.owner:
             raise ValueError('Invalid owner')
