@@ -1,1 +1,1 @@
-console.log(1344);
+console.log('Dj Utils Admin Base');

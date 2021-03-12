@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse, HttpResponse
 
@@ -5,7 +6,7 @@ from .models import Poll
 
 
 def hi(request):
-    return HttpResponse('okk')
+    return HttpResponse('okk' + (str(settings.VAR1)) + settings.AP)
 
 
 def polls_list(request):

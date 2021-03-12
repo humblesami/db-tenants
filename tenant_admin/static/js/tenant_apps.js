@@ -31,7 +31,6 @@ $('body').append('<div id="app-hider"><style>.module[class^="app-"]{display:none
                 if(res.status == 'success')
                 {
                     let apps_data = res.data;
-                    console.log(apps_data, is_sub_domain);
                     show_apps(apps_data.shared_apps);
                     if(is_sub_domain)
                     {

@@ -124,7 +124,7 @@ MIDDLEWARE.append("tenant_management.middlewares.TenantMiddleware")
 
 STATIC_URL = "/static/"
 default_apps = INSTALLED_APPS
-ADMIN_APPS = ['dj_utils']
+ADMIN_APPS = ['dj_utils.apps.DjUtilsConfig']
 PIP_APPS = ["rest_framework", "rest_framework.authtoken"]
 PUBLIC_APPS = ['crm', 'package_subscriptions', 'tenant_management', 'tenant_subscriptions']
 ADMIN_PUBLIC_APPS = ['tenant_admin']
@@ -134,7 +134,7 @@ TENANT_APPS = ['polls']
 ADMIN_APPS = ADMIN_PUBLIC_APPS + ADMIN_APPS
 SHARED_APPS = ADMIN_APPS + default_apps + PIP_APPS
 INSTALLED_APPS = SHARED_APPS + PUBLIC_APPS + TENANT_APPS
-
+AP = '--kkk'
 if DEBUG:
     AUTH_PASSWORD_VALIDATORS = []
 STATIC_ROOT = os.path.join(BASE_DIR, "static/")
